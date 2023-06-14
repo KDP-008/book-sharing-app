@@ -65,10 +65,10 @@ resource "aws_security_group" "hackathon_sg" {
   }
 }
 
-resource "aws_key_pair" "hackathon_keypair" {
-  key_name   = "aws_hackathon_keypair"
-  public_key = file("/Users/kdp/Projects/IdeaProjects/book-sharing-app/hackathon_keypair.pub")
-}
+# resource "aws_key_pair" "hackathon_keypair" {
+#   key_name   = "aws_hackathon_keypair"
+#   public_key = file("/Users/kdp/Projects/IdeaProjects/book-sharing-app/hackathon_keypair.pub")
+# }
 
 resource "aws_instance" "ec2_dev" {
   instance_type                 = "t2.micro"
