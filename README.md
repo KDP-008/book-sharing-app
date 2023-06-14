@@ -1,5 +1,8 @@
 # book-sharing-app
 
+- Run `mvn clean install` from [book-sharing-app-svc](book-sharing-app-svc) module
+- It will create the packaged jar in the target folder that needs to be deployed to EC2
+
 ### Steps to create an EC2 instance & deploy the spring boot jar in AWS:
 
 - Install terraform on your local machine
