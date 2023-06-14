@@ -13,7 +13,10 @@
         public_key = file("/<path_to_your_key_pair>.pub")
       }
     ```
-  - The key is not required I guess if we are using JPMC sandbox otherwise it would have helped to ssh into the instance`
-  
+  - The key is not required I guess if we are using JPMC sandbox otherwise it would have helped to ssh into the instance
+- Once configs are ready, run terraform commands from the [terraform-workstation](terraform-workstation) root in order:
+  - terraform init
+  - terraform plan
+  - terraform apply
 - You can also follow this page in case of doubts:
   - https://awstip.com/how-to-deploy-an-aws-ec2-instance-using-terraform-be164e6ac757
