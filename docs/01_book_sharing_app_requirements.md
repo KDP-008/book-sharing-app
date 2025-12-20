@@ -6,7 +6,7 @@
 
     > create a new account using my email ID
 
-    > reset the password if I don't remeber it
+    > reset the password if I don't remember it
 
     > see appropriate message if I am not authenticated
 

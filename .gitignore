@@ -32,3 +32,6 @@ replay_pid*
 # IDE
 .idea/
 *.iml
+
+# Custom folder & files
+*ip/*
