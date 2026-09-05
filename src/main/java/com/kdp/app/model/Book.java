@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "books")
+@Schema(description = "A book available for sharing")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,15 +25,19 @@ public class Book {
     private Long id;
 
     @Column(nullable = false)
+    @Schema(description = "Title of the book", example = "The Hobbit")
     private String title;
 
     @Column(nullable = false)
+    @Schema(description = "Author of the book", example = "J.R.R. Tolkien")
     private String author;
 
     @Column(nullable = false)
+    @Schema(description = "Genre of the book", example = "Fantasy")
     private String genre;
 
     @Column(nullable = false)
+    @Schema(description = "Availability for borrowing")
     private boolean available = true;
 
     @JsonIgnore

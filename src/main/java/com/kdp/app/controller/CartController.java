@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/cart")
+@Tag(name = "Cart", description = "Cart and checkout operations")
 public class CartController {
 
     private final CartService cartService;
@@ -19,11 +22,13 @@ public class CartController {
     }
 
     @GetMapping("/{userId}")
+    @Operation(summary = "Get cart items for a user")
     public ResponseEntity<List<CartItem>> getCart(@PathVariable Long userId) {
         return ResponseEntity.ok(cartService.getCartItems(userId));
     }
 
     @PostMapping("/{userId}/add")
+    @Operation(summary = "Add a book to user's cart")
     public ResponseEntity<?> addToCart(@PathVariable Long userId, @RequestBody Map<String, Long> payload) {
         try {
             CartItem item = cartService.addToCart(userId, payload.get("bookId"));
@@ -34,6 +39,7 @@ public class CartController {
     }
 
     @PostMapping("/{userId}/checkout")
+    @Operation(summary = "Checkout cart for a user")
     public ResponseEntity<?> checkout(@PathVariable Long userId, @RequestBody Map<String, String> payload) {
         try {
             var result = cartService.checkout(userId, payload.getOrDefault("deliveryMethod", "COURIER"));

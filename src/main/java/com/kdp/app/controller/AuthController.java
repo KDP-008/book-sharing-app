@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Auth", description = "Authentication and user account operations")
 public class AuthController {
 
     private final AuthService authService;
@@ -19,6 +22,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Register a new user")
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
         try {
             User user = authService.register(
@@ -33,6 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login with email and password")
     public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
         Optional<User> user = authService.login(payload.get("email"), payload.get("password"));
         if (user.isEmpty()) {
@@ -42,6 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
+    @Operation(summary = "Reset a user's password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> payload) {
         try {
             User user = authService.resetPassword(payload.get("email"), payload.get("newPassword"));

@@ -64,6 +64,24 @@ The application will start on:
 
 - http://localhost:8080/api
 
+API documentation (Swagger UI) is available after startup at:
+
+- http://localhost:8080/api/swagger-ui/index.html
+
+Loading sample data (data.sql)
+
+ - By default the application does **not** load `data.sql`. To start the app with the sample data (dev mode), run with the `dev` profile:
+
+```bash
+# Unix/macOS
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+# or set environment variable:
+SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run
+```
+
+This will enable SQL initialization and load `data.sql` into the in-memory H2 database. Tests and production runs remain unaffected because the default profile keeps `spring.sql.init.mode=never`.
+
 The H2 database console is available at:
 
 - http://localhost:8080/api/h2-console
