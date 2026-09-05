@@ -1,6 +1,6 @@
 # Requirements
 
-- ### As an user, I should be able to
+### As an user, I should be able to
 
     > logon to the app using registered details
     > create a new account using my email ID
