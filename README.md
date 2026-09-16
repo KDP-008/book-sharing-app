@@ -124,7 +124,8 @@ docker compose up --build
 
 This starts the app with the default in-memory H2 configuration.
 
-
+----
+` PS: Only look at below once MVP is complete
 ## Extending the platform further
 
 The project is designed to be extended beyond the MVP described in the requirements file. Additional capabilities that can be built next include:
