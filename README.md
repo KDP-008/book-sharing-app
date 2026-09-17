@@ -124,6 +124,7 @@ docker compose up --build
 
 This starts the app with the default in-memory H2 configuration.
 
+
 ----
 ` PS: Only look at below once MVP is complete
 ## Extending the platform further
@@ -142,3 +143,10 @@ The project is designed to be extended beyond the MVP described in the requireme
 - notifications via email, SMS, or push channels
 
 For more details, see the feature requirements in [docs/01_book_sharing_app_requirements.md](docs/01_book_sharing_app_requirements.md).
+
+
+ ###  This app can easily be repurposed as a general peer-to-peer sharing/rental platform   
+ - Board/Video games
+ - Tool and Equipment Libraries
+ - University/School Resource Sharing
+
