@@ -8,7 +8,7 @@
         <version>4.0.0</version>
         <relativePath/> 
     </parent>
-    <groupId>com.kdp.app</groupId>
+    <groupId>com.bsa</groupId>
     <artifactId>book-sharing-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>book-sharing-app</name>
