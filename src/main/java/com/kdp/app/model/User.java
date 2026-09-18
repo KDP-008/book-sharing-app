@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +37,25 @@ public class User {
     @Schema(description = "Hashed password (never return raw password)")
     private String password;
 
-    private String favoriteGenre;
+    @Column(name = "memorable_info", nullable = false)
+    @Schema(description = "Memorable info used for password reset verification")
+    private String memorableInfo;
 
-    private String favoriteAuthor;
+    @Column(name = "is_locked", nullable = false, length = 1)
+    private String isLocked = "N";
+
+    @Column(name = "is_active", nullable = false, length = 1)
+    private String isActive = "Y";
+
+    @Column(name = "create_date", nullable = false)
+    private LocalDateTime createDate = LocalDateTime.now();
+
+    @Column(name = "modified_date", nullable = false)
+    private LocalDateTime modifiedDate = LocalDateTime.now();
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserPreference preference;
 
     @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,9 +73,22 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
-    public User(String name, String email, String password) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messages = new ArrayList<>();
+
+    public User(String name, String email, String password, String memorableInfo) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.memorableInfo = memorableInfo;
+        this.isLocked = "N";
+        this.isActive = "Y";
+        this.createDate = LocalDateTime.now();
+        this.modifiedDate = LocalDateTime.now();
+    }
+
+    public User(String name, String email, String password) {
+        this(name, email, password, "default-memorable-info");
     }
 }

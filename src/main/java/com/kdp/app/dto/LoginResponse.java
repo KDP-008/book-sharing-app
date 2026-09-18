@@ -10,12 +10,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request payload to create a new book")
-public class CreateBookRequest {
+@Schema(description = "Response payload after successful authentication")
+public class LoginResponse {
 
-    private Long ownerId;
-    private String title;
-    private String author;
-    private String genre;
-    private boolean available = true;
+    private String token;
+    private boolean authenticated;
+    private UserResponse user;
 }
+

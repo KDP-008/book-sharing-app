@@ -1,9 +1,7 @@
 package com.kdp.app.controller;
 
-import com.kdp.app.model.Book;
-import com.kdp.app.model.CartItem;
-import com.kdp.app.model.DeliveryMethod;
-import com.kdp.app.model.User;
+import com.kdp.app.dto.CartItemResponse;
+import com.kdp.app.dto.CheckoutResponse;
 import com.kdp.app.service.CartService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +12,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,22 +30,18 @@ class CartControllerTest {
 
     @Test
     void addToCartAndCheckout_shouldWorkThroughApi() throws Exception {
-        User owner = new User("Owner", "owner@example.com", "pass");
-        owner.setId(1L);
-        User borrower = new User("Borrower", "borrower@example.com", "pass");
-        borrower.setId(2L);
-        Book book = new Book("Spring in Action", "Craig Walls", "Programming", true, owner);
-        book.setId(10L);
-        CartItem cartItem = new CartItem(99L, borrower, book);
+        CartItemResponse cartItemResponse = new CartItemResponse(99L, 10L, "Spring in Action", "Craig Walls", "Programming");
+        CheckoutResponse checkoutResponse = new CheckoutResponse("Checkout successful", "COURIER", 1);
 
-        when(cartService.addToCart(2L, 10L)).thenReturn(cartItem);
-        when(cartService.getCartItems(2L)).thenReturn(List.of());
-        when(cartService.checkout(2L, "COURIER")).thenReturn(new CartService.CheckoutResult(List.of(), DeliveryMethod.COURIER));
+        when(cartService.addToCart(2L, 10L)).thenReturn(cartItemResponse);
+        when(cartService.getCartItems(2L)).thenReturn(List.of(cartItemResponse));
+        when(cartService.checkout(2L, "COURIER")).thenReturn(checkoutResponse);
 
         mockMvc.perform(post("/cart/2/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"bookId\":10}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bookId").value(10L));
 
         mockMvc.perform(post("/cart/2/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -56,6 +51,18 @@ class CartControllerTest {
 
         mockMvc.perform(get("/cart/2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].bookTitle").value("Spring in Action"));
+    }
+
+    @Test
+    void removeCartItem_shouldWorkThroughApi() throws Exception {
+        doNothing().when(cartService).removeCartItem(2L, 99L);
+
+        mockMvc.perform(delete("/cart/2/items/99"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Item removed from cart"));
+
+        verify(cartService, times(1)).removeCartItem(2L, 99L);
     }
 }

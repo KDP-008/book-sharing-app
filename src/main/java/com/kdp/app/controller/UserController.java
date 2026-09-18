@@ -1,16 +1,18 @@
 package com.kdp.app.controller;
 
-import com.kdp.app.model.Book;
+import com.kdp.app.dto.BookResponse;
+import com.kdp.app.dto.MessageResponse;
+import com.kdp.app.dto.UpdatePreferencesRequest;
+import com.kdp.app.dto.UserPreferenceResponse;
+import com.kdp.app.dto.UserResponse;
 import com.kdp.app.model.Notification;
-import com.kdp.app.model.User;
 import com.kdp.app.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/users")
@@ -25,33 +27,38 @@ public class UserController {
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get user by id")
-    public ResponseEntity<User> getUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.getUserById(userId));
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getUserResponseById(userId));
+    }
+
+    @GetMapping("/{userId}/preferences")
+    @Operation(summary = "Get user preferences")
+    public ResponseEntity<UserPreferenceResponse> getPreferences(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getPreferences(userId));
     }
 
     @PutMapping("/{userId}/preferences")
     @Operation(summary = "Update user preferences")
-    public ResponseEntity<?> updatePreferences(@PathVariable Long userId,
-                                              @RequestBody Map<String, String> payload) {
-        userService.updatePreferences(userId, payload.get("favoriteGenre"), payload.get("favoriteAuthor"));
-        return ResponseEntity.ok(Map.of("message", "Preferences updated"));
+    public ResponseEntity<UserPreferenceResponse> updatePreferences(@PathVariable Long userId,
+                                                                   @RequestBody UpdatePreferencesRequest request) {
+        return ResponseEntity.ok(userService.updatePreferences(userId, request));
     }
 
     @GetMapping("/{userId}/books-owned")
     @Operation(summary = "List books owned by user")
-    public ResponseEntity<List<Book>> getBooksOwned(@PathVariable Long userId) {
+    public ResponseEntity<List<BookResponse>> getBooksOwned(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getBooksOwnedByUser(userId));
     }
 
     @GetMapping("/{userId}/borrowers")
     @Operation(summary = "List users who borrowed this user's books")
-    public ResponseEntity<List<User>> getBorrowers(@PathVariable Long userId) {
+    public ResponseEntity<List<UserResponse>> getBorrowers(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getBorrowersOfUserBooks(userId));
     }
 
     @GetMapping("/{userId}/books-borrowed")
     @Operation(summary = "List books borrowed by user")
-    public ResponseEntity<List<Book>> getBooksBorrowed(@PathVariable Long userId) {
+    public ResponseEntity<List<BookResponse>> getBooksBorrowed(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getBooksBorrowedByUser(userId));
     }
 
@@ -59,5 +66,11 @@ public class UserController {
     @Operation(summary = "Get user notifications")
     public ResponseEntity<List<Notification>> getNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getNotifications(userId));
+    }
+
+    @GetMapping("/{userId}/inbox")
+    @Operation(summary = "Get user inbox messages")
+    public ResponseEntity<List<MessageResponse>> getInbox(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getInboxMessages(userId));
     }
 }

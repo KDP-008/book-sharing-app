@@ -1,11 +1,12 @@
 package com.kdp.app.service;
 
-import com.kdp.app.model.Book;
-import com.kdp.app.model.User;
+import com.kdp.app.dto.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,22 +23,66 @@ class CartServiceTest {
     @Autowired
     private CartService cartService;
 
-    @Test
-    void addToCart_andCheckout_shouldBorrowBooks() {
-        User owner = authService.register("Library Owner", "owner2@example.com", "OwnerPass123");
-        User borrower = authService.register("Borrower User", "borrower@example.com", "BorrowPass123");
+    @Autowired
+    private UserService userService;
 
-        Book book = bookService.addBook(owner.getId(), "Java Concurrency", "Brian Goetz", "Programming", true);
-        Book secondBook = bookService.addBook(owner.getId(), "The Alchemist", "Paulo Coelho", "Fiction", true);
+    @Test
+    void addToCart_andCheckout_shouldBorrowBooksAndCreateInboxMessages() {
+        UserResponse owner = authService.register(new RegisterUserRequest("Library Owner", "owner2@example.com", "OwnerPass123", "Secret1", null, null, null));
+        UserResponse borrower = authService.register(new RegisterUserRequest("Borrower User", "borrower@example.com", "BorrowPass123", "Secret2", null, null, null));
+
+        BookResponse book = bookService.addBook(new CreateBookRequest(owner.getId(), "Java Concurrency", "Brian Goetz", "Programming", true));
+        BookResponse secondBook = bookService.addBook(new CreateBookRequest(owner.getId(), "The Alchemist", "Paulo Coelho", "Fiction", true));
 
         cartService.addToCart(borrower.getId(), book.getId());
         cartService.addToCart(borrower.getId(), secondBook.getId());
 
-        var checkoutResult = cartService.checkout(borrower.getId(), "COURIER");
+        CheckoutResponse checkoutResult = cartService.checkout(borrower.getId(), "COURIER");
 
-        assertEquals(2, checkoutResult.getBorrowingRecords().size());
-        assertEquals("COURIER", checkoutResult.getDeliveryMethod().name());
+        assertEquals(2, checkoutResult.getBorrowedBooks());
+        assertEquals("COURIER", checkoutResult.getDeliveryMethod());
         assertEquals(0, cartService.getCartItems(borrower.getId()).size());
         assertFalse(bookService.getBookById(book.getId()).isAvailable());
+
+        // Verify inbox messages were created for recipient
+        List<MessageResponse> inbox = userService.getInboxMessages(borrower.getId());
+        assertEquals(2, inbox.size());
+        assertTrue(inbox.get(0).getSubject().contains("borrowed"));
+    }
+
+    @Test
+    void addToCart_shouldRejectSelfBorrowing() {
+        UserResponse owner = authService.register(new RegisterUserRequest("Self Owner", "self@example.com", "Pass123", "Secret", null, null, null));
+        BookResponse book = bookService.addBook(new CreateBookRequest(owner.getId(), "My Own Book", "Author", "Genre", true));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> cartService.addToCart(owner.getId(), book.getId()));
+        assertEquals("Cannot borrow your own book.", ex.getMessage());
+    }
+
+    @Test
+    void addToCart_shouldRejectDuplicateBook() {
+        UserResponse owner = authService.register(new RegisterUserRequest("Owner", "owner_dup@example.com", "Pass123", "Secret", null, null, null));
+        UserResponse borrower = authService.register(new RegisterUserRequest("Borrower", "borrower_dup@example.com", "Pass123", "Secret", null, null, null));
+        BookResponse book = bookService.addBook(new CreateBookRequest(owner.getId(), "Duplicate Book", "Author", "Genre", true));
+
+        cartService.addToCart(borrower.getId(), book.getId());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> cartService.addToCart(borrower.getId(), book.getId()));
+        assertEquals("Book is already in your cart.", ex.getMessage());
+    }
+
+    @Test
+    void removeCartItem_shouldRemoveItem() {
+        UserResponse owner = authService.register(new RegisterUserRequest("Owner", "owner_rem@example.com", "Pass123", "Secret", null, null, null));
+        UserResponse borrower = authService.register(new RegisterUserRequest("Borrower", "borrower_rem@example.com", "Pass123", "Secret", null, null, null));
+        BookResponse book = bookService.addBook(new CreateBookRequest(owner.getId(), "Remove Book", "Author", "Genre", true));
+
+        CartItemResponse item = cartService.addToCart(borrower.getId(), book.getId());
+        assertEquals(1, cartService.getCartItems(borrower.getId()).size());
+
+        cartService.removeCartItem(borrower.getId(), item.getId());
+        assertEquals(0, cartService.getCartItems(borrower.getId()).size());
     }
 }

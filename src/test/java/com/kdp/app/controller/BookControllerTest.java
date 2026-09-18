@@ -1,7 +1,7 @@
 package com.kdp.app.controller;
 
-import com.kdp.app.model.Book;
-import com.kdp.app.model.User;
+import com.kdp.app.dto.BookResponse;
+import com.kdp.app.dto.CreateBookRequest;
 import com.kdp.app.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,10 +31,7 @@ class BookControllerTest {
 
     @Test
     void searchBooks_shouldReturnMatchingBooks() throws Exception {
-        User owner = new User("Owner", "owner@example.com", "pass");
-        owner.setId(1L);
-        Book book = new Book("The Pragmatic Programmer", "Andrew Hunt", "Programming", true, owner);
-        book.setId(10L);
+        BookResponse book = new BookResponse(10L, "The Pragmatic Programmer", "Andrew Hunt", "Programming", true, 1L, "Owner");
         when(bookService.searchBooks("Pragmatic", null, null)).thenReturn(List.of(book));
 
         mockMvc.perform(get("/books/search").param("title", "Pragmatic"))
@@ -42,17 +41,25 @@ class BookControllerTest {
 
     @Test
     void addBook_shouldPersistThroughApi() throws Exception {
-        User owner = new User("Owner", "owner@example.com", "pass");
-        owner.setId(1L);
-        Book book = new Book("Clean Code", "Robert C. Martin", "Programming", true, owner);
-        book.setId(20L);
-
-        when(bookService.addBook(1L, "Clean Code", "Robert C. Martin", "Programming", true)).thenReturn(book);
+        BookResponse book = new BookResponse(20L, "Clean Code", "Robert C. Martin", "Programming", true, 1L, "Owner");
+        when(bookService.addBook(any(CreateBookRequest.class))).thenReturn(book);
 
         mockMvc.perform(post("/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"ownerId\":1,\"title\":\"Clean Code\",\"author\":\"Robert C. Martin\",\"genre\":\"Programming\",\"available\":true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Clean Code"));
+    }
+
+    @Test
+    void returnBook_shouldWorkThroughApi() throws Exception {
+        BookResponse book = new BookResponse(20L, "Clean Code", "Robert C. Martin", "Programming", true, 1L, "Owner");
+        when(bookService.returnBook(eq(20L), eq(2L))).thenReturn(book);
+
+        mockMvc.perform(post("/books/20/return")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"borrowerId\":2}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(true));
     }
 }

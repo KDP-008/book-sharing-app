@@ -1,14 +1,19 @@
 package com.kdp.app.controller;
 
-import com.kdp.app.model.User;
+import com.kdp.app.dto.LoginRequest;
+import com.kdp.app.dto.LoginResponse;
+import com.kdp.app.dto.PasswordResetRequest;
+import com.kdp.app.dto.RegisterUserRequest;
+import com.kdp.app.dto.UserResponse;
 import com.kdp.app.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,37 +28,26 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
-        try {
-            User user = authService.register(
-                    payload.get("name"),
-                    payload.get("email"),
-                    payload.get("password")
-            );
-            return ResponseEntity.ok(user);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterUserRequest request) {
+        UserResponse user = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PostMapping("/login")
     @Operation(summary = "Login with email and password")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
-        Optional<User> user = authService.login(payload.get("email"), payload.get("password"));
-        if (user.isEmpty()) {
-            return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        Optional<LoginResponse> response = authService.login(request);
+        if (response.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid credentials"));
         }
-        return ResponseEntity.ok(user.get());
+        return ResponseEntity.ok(response.get());
     }
 
     @PostMapping("/reset-password")
-    @Operation(summary = "Reset a user's password")
-    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> payload) {
-        try {
-            User user = authService.resetPassword(payload.get("email"), payload.get("newPassword"));
-            return ResponseEntity.ok(user);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
-        }
+    @Operation(summary = "Reset a user's password using memorable info")
+    public ResponseEntity<UserResponse> resetPassword(@RequestBody PasswordResetRequest request) {
+        UserResponse user = authService.resetPassword(request);
+        return ResponseEntity.ok(user);
     }
 }

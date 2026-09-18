@@ -1,15 +1,15 @@
 package com.kdp.app.controller;
 
-import com.kdp.app.model.Book;
-import com.kdp.app.service.BookService;
+import com.kdp.app.dto.BookResponse;
 import com.kdp.app.dto.CreateBookRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.kdp.app.dto.ReturnBookRequest;
+import com.kdp.app.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/books")
@@ -24,38 +24,45 @@ public class BookController {
 
     @GetMapping
     @Operation(summary = "Get all books")
-    public ResponseEntity<List<Book>> getAllBooks() {
+    public ResponseEntity<List<BookResponse>> getAllBooks() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
     @GetMapping("/search")
     @Operation(summary = "Search books by title, author or genre")
-    public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) String title,
-                                                @RequestParam(required = false) String author,
-                                                @RequestParam(required = false) String genre) {
+    public ResponseEntity<List<BookResponse>> searchBooks(@RequestParam(required = false) String title,
+                                                          @RequestParam(required = false) String author,
+                                                          @RequestParam(required = false) String genre) {
         return ResponseEntity.ok(bookService.searchBooks(title, author, genre));
     }
 
     @GetMapping("/{bookId}")
     @Operation(summary = "Get book details by id")
-    public ResponseEntity<Book> getBook(@PathVariable Long bookId) {
-        return ResponseEntity.ok(bookService.getBookById(bookId));
+    public ResponseEntity<BookResponse> getBook(@PathVariable Long bookId) {
+        return ResponseEntity.ok(bookService.getBookResponseById(bookId));
     }
 
     @PostMapping
     @Operation(summary = "Add a new book")
-    public ResponseEntity<?> addBook(@RequestBody CreateBookRequest request) {
-        try {
-            Book book = bookService.addBook(
-                    request.getOwnerId(),
-                    request.getTitle(),
-                    request.getAuthor(),
-                    request.getGenre(),
-                    request.isAvailable()
-            );
-            return ResponseEntity.ok(book);
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+    public ResponseEntity<BookResponse> addBook(@RequestBody CreateBookRequest request) {
+        BookResponse book = bookService.addBook(request);
+        return ResponseEntity.ok(book);
+    }
+
+    @PostMapping("/{bookId}/return")
+    @Operation(summary = "Return a borrowed book")
+    public ResponseEntity<BookResponse> returnBook(@PathVariable Long bookId,
+                                                   @RequestBody(required = false) ReturnBookRequest request,
+                                                   @RequestParam(required = false) Long borrowerId) {
+        Long effectiveBorrowerId = borrowerId;
+        if (effectiveBorrowerId == null && request != null) {
+            effectiveBorrowerId = request.getBorrowerId();
         }
+        if (effectiveBorrowerId == null) {
+            throw new IllegalArgumentException("Borrower ID is required to return a book.");
+        }
+
+        BookResponse returnedBook = bookService.returnBook(bookId, effectiveBorrowerId);
+        return ResponseEntity.ok(returnedBook);
     }
 }

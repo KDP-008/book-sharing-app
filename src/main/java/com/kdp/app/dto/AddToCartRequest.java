@@ -10,12 +10,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request payload to create a new book")
-public class CreateBookRequest {
+@Schema(description = "Request payload to add a book to cart")
+public class AddToCartRequest {
 
-    private Long ownerId;
-    private String title;
-    private String author;
-    private String genre;
-    private boolean available = true;
+    @Schema(description = "ID of the book to add", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Long bookId;
 }
+

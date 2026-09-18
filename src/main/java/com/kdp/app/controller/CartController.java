@@ -1,14 +1,17 @@
 package com.kdp.app.controller;
 
-import com.kdp.app.model.CartItem;
+import com.kdp.app.dto.AddToCartRequest;
+import com.kdp.app.dto.CartItemResponse;
+import com.kdp.app.dto.CheckoutRequest;
+import com.kdp.app.dto.CheckoutResponse;
 import com.kdp.app.service.CartService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/cart")
@@ -23,33 +26,32 @@ public class CartController {
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get cart items for a user")
-    public ResponseEntity<List<CartItem>> getCart(@PathVariable Long userId) {
+    public ResponseEntity<List<CartItemResponse>> getCart(@PathVariable Long userId) {
         return ResponseEntity.ok(cartService.getCartItems(userId));
     }
 
     @PostMapping("/{userId}/add")
     @Operation(summary = "Add a book to user's cart")
-    public ResponseEntity<?> addToCart(@PathVariable Long userId, @RequestBody Map<String, Long> payload) {
-        try {
-            CartItem item = cartService.addToCart(userId, payload.get("bookId"));
-            return ResponseEntity.ok(item);
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<CartItemResponse> addToCart(@PathVariable Long userId, @RequestBody AddToCartRequest request) {
+        CartItemResponse item = cartService.addToCart(userId, request.getBookId());
+        return ResponseEntity.ok(item);
+    }
+
+    @DeleteMapping("/{userId}/items/{cartItemId}")
+    @Operation(summary = "Remove an item from user's cart")
+    public ResponseEntity<Map<String, String>> removeCartItem(@PathVariable Long userId, @PathVariable Long cartItemId) {
+        cartService.removeCartItem(userId, cartItemId);
+        return ResponseEntity.ok(Map.of("message", "Item removed from cart"));
     }
 
     @PostMapping("/{userId}/checkout")
     @Operation(summary = "Checkout cart for a user")
-    public ResponseEntity<?> checkout(@PathVariable Long userId, @RequestBody Map<String, String> payload) {
-        try {
-            var result = cartService.checkout(userId, payload.getOrDefault("deliveryMethod", "COURIER"));
-            return ResponseEntity.ok(Map.of(
-                    "message", "Checkout successful",
-                    "deliveryMethod", result.getDeliveryMethod().name(),
-                    "borrowedBooks", result.getBorrowingRecords().size()
-            ));
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
-        }
+    public ResponseEntity<CheckoutResponse> checkout(@PathVariable Long userId,
+                                                      @RequestBody(required = false) CheckoutRequest request) {
+        String deliveryMethod = (request != null && request.getDeliveryMethod() != null)
+                ? request.getDeliveryMethod()
+                : "COURIER";
+        CheckoutResponse response = cartService.checkout(userId, deliveryMethod);
+        return ResponseEntity.ok(response);
     }
 }

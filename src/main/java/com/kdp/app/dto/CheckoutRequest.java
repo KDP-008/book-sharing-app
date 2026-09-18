@@ -10,12 +10,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request payload to create a new book")
-public class CreateBookRequest {
+@Schema(description = "Request payload to checkout cart")
+public class CheckoutRequest {
 
-    private Long ownerId;
-    private String title;
-    private String author;
-    private String genre;
-    private boolean available = true;
+    @Schema(description = "Delivery method (default COURIER)", example = "COURIER")
+    private String deliveryMethod = "COURIER";
 }
+
