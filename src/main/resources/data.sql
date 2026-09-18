@@ -2,9 +2,9 @@
 -- Sample Users (25 users)
 -- ===========================================
 INSERT INTO users (name, email, password, memorable_info, is_locked, is_active, create_date, modified_date) VALUES
-('Alice Smith', 'alice.smith@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'AliceSecret', 'N', 'N', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Bob Jones', 'bob.jones@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'BobSecret', 'N', 'N', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Charlie Brown', 'charlie.brown@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'CharlieSecret', 'N', 'N', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Alice Smith', 'alice.smith@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'AliceSecret', 'N', 'Y', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Bob Jones', 'bob.jones@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'BobSecret', 'N', 'Y', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Charlie Brown', 'charlie.brown@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'CharlieSecret', 'N', 'Y', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Diana Prince', 'diana.prince@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'DianaSecret', 'N', 'N', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Ethan Hunt', 'ethan.hunt@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'EthanSecret', 'N', 'N', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Fiona Gallagher', 'fiona.gallagher@example.com', '$2a$10$w09u7uR.uFq8h1m/48jPVOa2aFhL.j5b5/HSm9fK3b8n1e7bL4V7C', 'FionaSecret', 'N', 'N', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
